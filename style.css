@@ -1,0 +1,85 @@
+body {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background: linear-gradient(to bottom, #ffecd2 0%, #fcb69f 100%);
+  text-align: center;
+  padding: 20px;
+  color: #333;
+}
+
+h1 {
+  color: #ff4081;
+  font-size: 3em;
+  text-shadow: 2px 2px white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  grid-gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.cell {
+  width: 70px;
+  height: 70px;
+  background: #4caf50;
+  border-radius: 20px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.cell:hover {
+  transform: scale(1.1);
+}
+
+.cell.removed {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cell.selected {
+  background: #ff9800;
+}
+
+button {
+  background: #ff4081;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #f50057;
+}
+
+#status {
+  font-size: 1.5em;
+  margin: 15px 0;
+}
+
+.winner {
+  font-size: 2em;
+  color: #fff;
+  padding: 15px;
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  border-radius: 15px;
+  margin-top: 20px;
+  box-shadow: 0 0 20px #fff;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px #fff;
+  }
+  to {
+    box-shadow: 0 0 25px #fff;
+  }
+}
