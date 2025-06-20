@@ -1,23 +1,66 @@
 const boardElement = document.getElementById("board");
 const statusText = document.getElementById("status");
 
+const startScreen = document.getElementById("startScreen");
+const modeSelect = document.getElementById("modeSelect");
+const aiOptions = document.getElementById("aiOptions");
+const gameContainer = document.getElementById("gameContainer");
+const restartButton = document.getElementById("restartButton");
+
+// Add Home Button
+const homeBtn = document.createElement("button");
+homeBtn.textContent = "🏠 Home";
+homeBtn.onclick = goHome;
+homeBtn.style.margin = "10px";
+homeBtn.style.backgroundColor = "#555";
+homeBtn.style.color = "white";
+homeBtn.style.borderRadius = "12px";
+homeBtn.style.fontWeight = "bold";
+homeBtn.style.boxShadow = "0 4px 6px rgba(0,0,0,0.2)";
+homeBtn.style.padding = "10px 20px";
+homeBtn.style.cursor = "pointer";
+gameContainer.appendChild(homeBtn);
+
 let board = [];
 let currentPlayer = 1;
-let gameMode = null;
 let selected = [];
 let isAI = false;
+let playerAI = 2;
+let playerHuman = 1;
 
-const winSound = new Audio("win.mp3"); // 🔊 Load winning sound
+function showModeSelect() {
+  startScreen.classList.add("hidden");
+  modeSelect.classList.remove("hidden");
+}
 
-function startGame(mode) {
-  gameMode = mode;
+function showAIOptions() {
+  aiOptions.classList.remove("hidden");
+}
+
+function startGame(mode, aiPlayer = 2) {
   isAI = mode === "ai";
+  playerAI = aiPlayer;
+  playerHuman = aiPlayer === 1 ? 2 : 1;
+
   board = Array(4).fill(null).map(() => Array(4).fill(1));
-  currentPlayer = 1;
   selected = [];
-  renderBoard();
+  currentPlayer = 1;
+
+  startScreen.classList.add("hidden");
+  modeSelect.classList.add("hidden");
+  aiOptions.classList.add("hidden");
+  gameContainer.classList.remove("hidden");
+  restartButton.classList.add("hidden");
   statusText.classList.remove("winner");
-  statusText.textContent = isAI ? "Your turn (Player 1)" : "Player 1's Turn";
+
+  renderBoard();
+
+  if (isAI && currentPlayer === playerAI) {
+    statusText.textContent = "AI's turn...";
+    setTimeout(aiMove, 800);
+  } else {
+    statusText.textContent = isAI ? "Your turn" : "Player 1's Turn";
+  }
 }
 
 function renderBoard() {
@@ -36,6 +79,7 @@ function renderBoard() {
 
 function toggleSelection(r, c) {
   if (board[r][c] === 0) return;
+  if (isAI && currentPlayer !== playerHuman) return; // Only allow if it's the human's turn
 
   const idx = selected.findIndex(([sr, sc]) => sr === r && sc === c);
   if (idx !== -1) {
@@ -52,7 +96,6 @@ function isValidSelection(sel) {
   const cols = sel.map(([, c]) => c);
   const allSameRow = rows.every(r => r === rows[0]);
   const allSameCol = cols.every(c => c === cols[0]);
-
   if (!(allSameRow || allSameCol)) return false;
 
   const indices = allSameRow ? cols : rows;
@@ -71,20 +114,22 @@ function confirmMove() {
   }
 
   applyMove(selected);
+  renderBoard();
+
   if (checkWin()) {
-    celebrateWin(`🎉 Player ${currentPlayer} wins!`);
+    celebrateWin(currentPlayer === playerAI ? "🤖 AI wins!" : `🎉 Player ${currentPlayer} wins!`);
     return;
   }
 
   currentPlayer = currentPlayer === 1 ? 2 : 1;
-  statusText.textContent = isAI && currentPlayer === 2 ? "AI's turn..." : `Player ${currentPlayer}'s Turn`;
   selected = [];
 
-  if (isAI && currentPlayer === 2) {
-    setTimeout(aiMove, 1000);
+  if (isAI && currentPlayer === playerAI) {
+    statusText.textContent = "AI's turn...";
+    setTimeout(aiMove, 800);
+  } else {
+    statusText.textContent = isAI ? "Your turn" : `Player ${currentPlayer}'s Turn`;
   }
-
-  renderBoard();
 }
 
 function applyMove(sel) {
@@ -103,50 +148,93 @@ function clearSelection() {
 }
 
 function aiMove() {
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 3; c++) {
-      if (board[r][c] && board[r][c + 1]) {
-        applyMove([[r, c], [r, c + 1]]);
-        finishAITurn();
-        return;
-      }
+  const moves = getAllValidMoves();
+
+  for (const move of moves) {
+    const testBoard = board.map(row => [...row]);
+    for (const [r, c] of move) testBoard[r][c] = 0;
+    if (calculateNimSum(testBoard) === 0) {
+      applyMove(move);
+      endAITurn();
+      return;
     }
   }
 
-  for (let c = 0; c < 4; c++) {
-    for (let r = 0; r < 3; r++) {
-      if (board[r][c] && board[r + 1][c]) {
-        applyMove([[r, c], [r + 1, c]]);
-        finishAITurn();
-        return;
-      }
-    }
-  }
-
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
-      if (board[r][c] === 1) {
-        applyMove([[r, c]]);
-        finishAITurn();
-        return;
-      }
-    }
-  }
+  const fallback = moves[0];
+  applyMove(fallback);
+  endAITurn();
 }
 
-function finishAITurn() {
+function endAITurn() {
+  renderBoard();
+
   if (checkWin()) {
     celebrateWin("🤖 AI wins!");
     return;
   }
-  currentPlayer = 1;
-  statusText.textContent = "Your turn (Player 1)";
-  renderBoard();
+
+  currentPlayer = playerHuman;
+  selected = [];
+  statusText.textContent = "Your turn";
 }
 
-// ✨ Show winner + play sound
+function calculateNimSum(tempBoard) {
+  const rowCounts = tempBoard.map(row => row.filter(cell => cell === 1).length);
+  return rowCounts.reduce((a, b) => a ^ b, 0);
+}
+
+function getAllValidMoves() {
+  const moves = [];
+
+  for (let r = 0; r < 4; r++) {
+    let run = [];
+    for (let c = 0; c < 4; c++) {
+      if (board[r][c] === 1) {
+        run.push([r, c]);
+      } else if (run.length) {
+        addSubarrays(run, moves);
+        run = [];
+      }
+    }
+    if (run.length) addSubarrays(run, moves);
+  }
+
+  for (let c = 0; c < 4; c++) {
+    let run = [];
+    for (let r = 0; r < 4; r++) {
+      if (board[r][c] === 1) {
+        run.push([r, c]);
+      } else if (run.length) {
+        addSubarrays(run, moves);
+        run = [];
+      }
+    }
+    if (run.length) addSubarrays(run, moves);
+  }
+
+  return moves;
+}
+
+function addSubarrays(arr, moves) {
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j <= arr.length; j++) {
+      moves.push(arr.slice(i, j));
+    }
+  }
+}
+
 function celebrateWin(message) {
   statusText.textContent = message;
   statusText.classList.add("winner");
-  winSound.play();
+  restartButton.classList.remove("hidden");
+}
+
+function goHome() {
+  gameContainer.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+  modeSelect.classList.add("hidden");
+  aiOptions.classList.add("hidden");
+  statusText.classList.remove("winner");
+  restartButton.classList.add("hidden");
+  selected = [];
 }
