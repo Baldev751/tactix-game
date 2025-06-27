@@ -33,9 +33,7 @@ function showNotification(message) {
   notification.textContent = message;
   notification.classList.remove("hidden");
   
-  // Clear any existing timeout to prevent multiple notifications stacking
   if (notification.timeout) clearTimeout(notification.timeout);
-  
   notification.timeout = setTimeout(() => {
     notification.classList.add("hidden");
   }, 1500);
@@ -133,7 +131,7 @@ function confirmMove() {
   renderBoard();
 
   if (checkWin()) {
-    celebrateWin(currentPlayer === playerAI ? "🤖 AI wins!" : `🎉 Player ${currentPlayer} wins!`);
+    celebrateWin();
     return;
   }
 
@@ -185,7 +183,7 @@ function endAITurn() {
   renderBoard();
 
   if (checkWin()) {
-    celebrateWin("🤖 AI wins!");
+    celebrateWin();
     return;
   }
 
@@ -239,8 +237,15 @@ function addSubarrays(arr, moves) {
   }
 }
 
-function celebrateWin(message) {
-  statusText.textContent = message;
+function celebrateWin() {
+  let winMessage;
+  if (isAI) {
+    winMessage = currentPlayer === playerHuman ? "🎉 You win!" : "🤖 AI wins!";
+  } else {
+    winMessage = `🎉 Player ${currentPlayer} wins!`;
+  }
+  
+  statusText.textContent = winMessage;
   statusText.classList.add("winner");
   restartButton.classList.remove("hidden");
 }
