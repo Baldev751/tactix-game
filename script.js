@@ -28,17 +28,31 @@ let isAI = false;
 let playerAI = 2;
 let playerHuman = 1;
 
+function showNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.classList.remove("hidden");
+  
+  // Clear any existing timeout to prevent multiple notifications stacking
+  if (notification.timeout) clearTimeout(notification.timeout);
+  
+  notification.timeout = setTimeout(() => {
+    notification.classList.add("hidden");
+  }, 1500);
+}
+
 function showModeSelect() {
   startScreen.classList.add("hidden");
   modeSelect.classList.remove("hidden");
 }
 
 function showAIOptions() {
+  modeSelect.classList.add("hidden");
   aiOptions.classList.remove("hidden");
 }
 
 function startGame(mode, aiPlayer = 2) {
-  isAI = mode === "ai";
+  isAI = mode === 'ai';
   playerAI = aiPlayer;
   playerHuman = aiPlayer === 1 ? 2 : 1;
 
@@ -79,7 +93,7 @@ function renderBoard() {
 
 function toggleSelection(r, c) {
   if (board[r][c] === 0) return;
-  if (isAI && currentPlayer !== playerHuman) return; // Only allow if it's the human's turn
+  if (isAI && currentPlayer !== playerHuman) return;
 
   const idx = selected.findIndex(([sr, sc]) => sr === r && sc === c);
   if (idx !== -1) {
@@ -109,7 +123,9 @@ function isValidSelection(sel) {
 
 function confirmMove() {
   if (!isValidSelection(selected)) {
-    alert("Invalid selection! Must be adjacent in the same row or column.");
+    showNotification("Invalid selection! Must select adjacent cells in same row/column");
+    selected = [];
+    renderBoard();
     return;
   }
 
