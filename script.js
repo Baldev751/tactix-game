@@ -28,6 +28,22 @@ let isAI = false;
 let playerAI = 2;
 let playerHuman = 1;
 
+// Rules Modal Functions
+function showRules() {
+  document.getElementById("rulesModal").classList.add("active");
+}
+
+function hideRules() {
+  document.getElementById("rulesModal").classList.remove("active");
+}
+
+// Close modal when clicking outside
+document.getElementById("rulesModal").addEventListener('click', function(e) {
+  if (e.target === this) {
+    hideRules();
+  }
+});
+
 function showNotification(message) {
   const notification = document.getElementById("notification");
   notification.textContent = message;

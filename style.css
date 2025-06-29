@@ -114,6 +114,59 @@ button:last-of-type {
   animation: fadeIn 0.3s ease-out, fadeOut 0.3s ease-in 1.5s forwards;
 }
 
+/* Rules Modal Styles */
+.rules-btn {
+  background-color: #FEC62B !important;
+  margin-top: 10px !important;
+}
+
+#rulesModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#rulesModal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rules-content {
+  background-color: #FEFBE3;
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(105, 78, 57, 0.959);
+  position: relative;
+}
+
+.rules-content ol {
+  text-align: left;
+  margin: 20px 0;
+  padding-left: 20px;
+}
+
+.rules-content li {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.rules-content button {
+  background-color: #F27021 !important;
+  margin-top: 20px !important;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translate(-50%, -60%); }
   to { opacity: 1; transform: translate(-50%, -50%); }

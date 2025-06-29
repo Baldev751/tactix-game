@@ -11,6 +11,22 @@
   <div id="startScreen">
     <h1>TacTix</h1>
     <button onclick="showModeSelect()">Start Game</button>
+    <button onclick="showRules()" class="rules-btn">📜 Show Rules</button>
+  </div>
+
+  <!-- Rules Modal -->
+  <div id="rulesModal">
+    <div class="rules-content">
+      <h2>Game Rules</h2>
+      <ol>
+        <li>The game is played on a 4×4 grid.</li>
+        <li>Two players take turns (you can play vs AI or another player).</li>
+        <li>On your turn, select one or more adjacent cells in the same row or column.</li>
+        <li>Selected cells must form an unbroken line (no gaps between them).</li>
+        <li>The player who removes the last remaining cell(s) wins the game.</li>
+      </ol>
+      <button onclick="hideRules()">Got it!</button>
+    </div>
   </div>
 
   <!-- Mode Selection -->
